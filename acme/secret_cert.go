@@ -72,6 +72,9 @@ func (b *backend) certRevoke(ctx context.Context, req *logical.Request, data *fr
 			return nil, fmt.Errorf("failed to remove cache entry: %v", err)
 		}
 
+		// XXX(lukegb): don't revoke the cert.
+		return nil, nil
+
 		accountPath := req.Secret.InternalData["account"].(string)
 		a, err := getAccount(ctx, req.Storage, accountPath)
 		if err != nil {
