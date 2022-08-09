@@ -70,6 +70,12 @@ func pathAccounts(b *backend) []*framework.Path {
 					Type:     framework.TypeString,
 					Required: true,
 				},
+				"eab_kid": {
+					Type: framework.TypeString,
+				},
+				"eab_hmac_key": {
+					Type: framework.TypeString,
+				},
 			},
 			ExistenceCheck: b.pathExistenceCheck,
 			Callbacks: map[logical.Operation]framework.OperationFunc{
@@ -112,6 +118,13 @@ func (b *backend) accountWrite(ctx context.Context, req *logical.Request, data *
 	enableTLSALPN01 := data.Get("enable_tls_alpn_01").(bool)
 	ignoreDNSPropagation := data.Get("ignore_dns_propagation").(bool)
 
+	eabKID := data.Get("eab_kid").(string)
+	eabHMACKey := data.Get("eab_hmac_key").(string)
+	if (eabKID != "") != (eabHMACKey != "") {
+		return logical.ErrorResponse("eab_kid and eab_hmac_key must either both be specified, or both be unspecified"), nil
+	}
+	enrollUsingEAB := eabKID != ""
+
 	var update bool
 	user, err := getAccount(ctx, req.Storage, req.Path)
 	if err != nil {
@@ -142,6 +155,9 @@ func (b *backend) accountWrite(ctx context.Context, req *logical.Request, data *
 		if data.Get("key_type").(string) != user.KeyType {
 			return logical.ErrorResponse("Cannot update key_type"), nil
 		}
+		if enrollUsingEAB {
+			return logical.ErrorResponse("Cannot update external account binding parameters"), nil
+		}
 	}
 
 	user.Email = contact
@@ -161,7 +177,15 @@ func (b *backend) accountWrite(ctx context.Context, req *logical.Request, data *
 	options := registration.RegisterOptions{
 		TermsOfServiceAgreed: termsOfServiceAgreed,
 	}
-	if update {
+	if enrollUsingEAB {
+		b.Logger().Info("Registering new account with EAB")
+		options := registration.RegisterEABOptions{
+			TermsOfServiceAgreed: termsOfServiceAgreed,
+			Kid:                  eabKID,
+			HmacEncoded:          eabHMACKey,
+		}
+		reg, err = client.Registration.RegisterWithExternalAccountBinding(options)
+	} else if update {
 		b.Logger().Info("Updating account")
 		reg, err = client.Registration.UpdateRegistration(options)
 	} else {
