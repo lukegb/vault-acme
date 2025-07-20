@@ -9,7 +9,7 @@ import (
 	"github.com/go-acme/lego/v3/lego"
 	"github.com/go-acme/lego/v3/providers/dns"
 	log "github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/openbao/openbao/sdk/v2/logical"
 )
 
 func getCertFromACMEProvider(ctx context.Context, logger log.Logger, req *logical.Request, a *account, names []string) (*certificate.Resource, error) {

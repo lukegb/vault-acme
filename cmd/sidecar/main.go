@@ -5,7 +5,7 @@ import (
 	"os"
 
 	log "github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/vault/api"
+	"github.com/openbao/openbao/api/v2"
 	"github.com/remilapeyre/vault-acme/acme/sidecar"
 )
 

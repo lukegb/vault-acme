@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/openbao/openbao/sdk/v2/logical"
 	"github.com/remilapeyre/vault-acme/acme/sidecar"
 	"github.com/stretchr/testify/require"
 )

@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-acme/lego/v3/challenge/tlsalpn01"
 	log "github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/vault/api"
-	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/openbao/openbao/api/v2"
+	"github.com/openbao/openbao/sdk/v2/logical"
 )
 
 type client interface {
